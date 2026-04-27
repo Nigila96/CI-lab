@@ -1,0 +1,55 @@
+nigila@Nigila:~/cil/ex10$ cat fibo_series.lisp
+(defun print-fibonacci ()
+  (format t "Enter the number of terms: ~%")
+  (let ((n (read)))
+    (if (and (integerp n) (> n 0))
+        (let ((a 0)
+              (b 1))
+          (format t "Fibonacci Series: ~%")
+          (dotimes (i n)
+            (format t "~d " a)
+            (let ((next (+ a b)))
+              (setq a b)
+              (setq b next))))
+        (format t "Please enter a positive integer."))))
+
+
+(print-fibonacci)
+nigila@Nigila:~/cil/ex10$ sbcl --script fibo_series.lisp
+Enter the number of terms:
+5
+Fibonacci Series:
+0 1 1 2 3 nigila@Nigila:~/cil/ex10$
+nigila@Nigila:~/cil/ex10$ cat area.lisp
+(defun area-circle (r)
+  (* 3.14 r r)
+)
+
+(format t "Enter radius: ~%")
+(let ((r (read)))
+  (format t "Area: ~a~%" (area-circle r))
+)
+nigila@Nigila:~/cil/ex10$ sbcl --script area.lisp
+Enter radius:
+5
+Area: 78.5
+nigila@Nigila:~/cil/ex10$ cat palindrome_string.lisp
+(defun string-palindrome (str)
+  (string= str (coerce (reverse (coerce str 'list)) 'string))
+)
+
+(format t "Enter string: ~%")
+(let ((s (read-line)))
+  (if (string-palindrome s)
+      (format t "Palindrome~%")
+      (format t "Not palindrome~%")
+  )
+)
+nigila@Nigila:~/cil/ex10$ sbcl --script palindrome_string.lisp
+Enter string:
+madam
+Palindrome
+nigila@Nigila:~/cil/ex10$ sbcl --script palindrome_string.lisp
+Enter string:
+intelligent
+Not palindrome

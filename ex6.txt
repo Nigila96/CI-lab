@@ -1,0 +1,397 @@
+[23bcs082@mepcolinux prolog]$cat prolog.prn
+Script started on Tue Mar 31 10:41:53 2026
+[23bcs082@mepcolinux prolog]$cat calculator.txt
+% --- Main Entry Point ---
+run :-
+    nl,
+    write(' --- Menu --- '), nl,
+    write(' 1. add 2. sub 3. mul 4. div 5. mod 6. Exit '), nl,
+    write(' Enter your choice : '),
+    read(Ch), nl,
+    choice(Ch).
+
+% --- Choice Predicates ---
+
+choice(1) :-
+    write(' Enter First Number : '), read(A),
+    write(' Enter Second Number : '), read(B),
+    calculate(+, A, B, R),
+    format(' ~w + ~w = ~w~n', [A, B, R]),
+    run. % This loops back to the menu
+
+choice(2) :-
+    write(' Enter First Number : '), read(A),
+    write(' Enter Second Number : '), read(B),
+    calculate(-, A, B, R),
+    format(' ~w - ~w = ~w~n', [A, B, R]),
+    run.
+
+choice(3) :-
+    write(' Enter First Number : '), read(A),
+    write(' Enter Second Number : '), read(B),
+    calculate(*, A, B, R),
+    format(' ~w * ~w = ~w~n', [A, B, R]),
+    run.
+
+choice(4) :-
+    write(' Enter First Number : '), read(A),
+    write(' Enter Second Number : '), read(B),
+    (B =\= 0 ->
+        calculate(/, A, B, R),
+        format(' ~w / ~w = ~w~n', [A, B, R])
+    ;   write('Error: Division by zero!'), nl),
+    run.
+
+choice(5) :-
+    write(' Enter First Number : '), read(A),
+    write(' Enter Second Number : '), read(B),
+    (B =\= 0 ->
+        calculate(mod, A, B, R),
+        format(' ~w mod ~w = ~w~n', [A, B, R])
+    ;   write('Error: Division by zero!'), nl),
+    run.
+
+% Exit - NO HALT HERE
+choice(6) :-
+    write(' Program Ended. '), nl.
+
+% Invalid Choice
+choice(_) :-
+    write('Invalid choice'), nl,
+    run.
+
+% --- Calculation Logic ---
+calculate(+, A, B, R) :- R is A + B.
+calculate(-, A, B, R) :- R is A - B.
+calculate(*, A, B, R) :- R is A * B.
+calculate(/, A, B, R) :- R is A / B.
+calculate(mod, A, B, R) :- R is A mod B.
+
+
+
+?- run
+|    .
+
+ --- Menu ---
+ 1. add 2. sub 3. mul 4. div 5. mod 6. Exit
+ Enter your choice : 1
+|: 5
+|: 3
+|: R.
+
+ERROR: Stream user_input:14:23 Syntax error: Operator expected
+?- run.
+
+ --- Menu ---
+ 1. add 2. sub 3. mul 4. div 5. mod 6. Exit
+ Enter your choice : 1.
+
+ Enter First Number : |: 5.
+ Enter Second Number : |: 3.
+ 5 + 3 = 8
+
+ --- Menu ---
+ 1. add 2. sub 3. mul 4. div 5. mod 6. Exit
+ Enter your choice : |: 2.
+
+ Enter First Number : |: 10.
+ Enter Second Number : |: 5.
+ 10 - 5 = 5
+
+ --- Menu ---
+ 1. add 2. sub 3. mul 4. div 5. mod 6. Exit
+ Enter your choice : |: 3.
+
+ Enter First Number : |: 25.
+ Enter Second Number : |: 5.
+ 25 * 5 = 125
+
+ --- Menu ---
+ 1. add 2. sub 3. mul 4. div 5. mod 6. Exit
+ Enter your choice : |: 4.
+
+ Enter First Number : |: 100.
+ Enter Second Number : |: 10.
+ 100 / 10 = 10
+
+ --- Menu ---
+ 1. add 2. sub 3. mul 4. div 5. mod 6. Exit
+ Enter your choice : |: 6.
+
+ Program Ended.
+true .
+[23bcs082@mepcolinux prolog]$cat grocery.txt
+% =============================================
+% GROCERY BILLING SYSTEM IN PROLOG
+% =============================================
+
+:- dynamic item/3.
+
+% --- Pre-loaded Grocery Items: item(Name, Price, Unit) ---
+item(rice,   55,  kg).
+item(wheat,  40,  kg).
+item(sugar,  45,  kg).
+item(salt,   20,  kg).
+item(oil,   130,  litre).
+item(bread,  40,  loaf).
+item(eggs,    7,  piece).
+
+% =============================================
+% 1. CHECK IF ITEM EXISTS
+% =============================================
+
+item_exists(ItemName) :-
+    item(ItemName, _, _),
+    format("Item '~w' is available.~n", [ItemName]).
+
+item_exists(ItemName) :-
+    \+ item(ItemName, _, _),
+    format("Sorry, '~w' is not available.~n", [ItemName]).
+
+% =============================================
+% 2. GET PRICE OF AN ITEM
+% =============================================
+
+get_price(ItemName) :-
+    item(ItemName, Price, Unit),
+    format("Price of ~w: Rs. ~w per ~w~n", [ItemName, Price, Unit]).
+
+get_price(ItemName) :-
+    \+ item(ItemName, _, _),
+    format("Item '~w' not found in store.~n", [ItemName]).
+
+% =============================================
+% 3. ITEM COST (Price x Quantity)
+% =============================================
+
+item_cost(ItemName, Quantity, Cost) :-
+    item(ItemName, Price, Unit),
+    Cost is Price * Quantity,
+    format("~w x ~w ~w = Rs. ~w~n", [ItemName, Quantity, Unit, Cost]).
+
+% =============================================
+% 4. ADD NEW ITEM
+% =============================================
+
+add_item(Name, Price, Unit) :-
+    item(Name, _, _), !,
+    format("Item '~w' already exists!~n", [Name]).
+
+add_item(Name, Price, Unit) :-
+    assertz(item(Name, Price, Unit)),
+    format("New item '~w' added successfully!~n", [Name]).
+
+% =============================================
+% 5. LIST ALL ITEMS (Inventory)
+% =============================================
+
+list_items :-
+    write('============================='), nl,
+    write(' STORE INVENTORY             '), nl,
+    write(' Item         Price   Unit   '), nl,
+    write('============================='), nl,
+    forall(item(Name, Price, Unit),
+           format("  ~w~30|Rs. ~w / ~w~n", [Name, Price, Unit])),
+    write('============================='), nl.
+
+% =============================================
+% 6. CALCULATE BILL
+% =============================================
+
+calculate_bill([], 0) :-
+    write(' '), nl.
+
+calculate_bill([item(Name, Qty) | Rest], Total) :-
+    item(Name, Price, Unit),
+    Cost is Price * Qty,
+    format("  ~w x ~w ~w @ Rs.~w = Rs.~w~n", [Name, Qty, Unit, Price, Cost]),
+    calculate_bill(Rest, RestTotal),
+    Total is Cost + RestTotal.
+
+calculate_bill([item(Name, _) | Rest], Total) :-
+    \+ item(Name, _, _),
+    format("  WARNING: '~w' not found in store - skipped.~n", [Name]),
+    calculate_bill(Rest, Total).
+
+% =============================================
+% 7. GENERATE FULL BILL
+% =============================================
+
+generate_bill(OrderList) :-
+    nl,
+    write('=============================='), nl,
+    write('       GROCERY BILL           '), nl,
+    write('=============================='), nl,
+    calculate_bill(OrderList, Total),
+    write('------------------------------'), nl,
+    format("  TOTAL BILL:  Rs. ~w~n", [Total]),
+    write('=============================='), nl.
+
+
+
+?- list_items().
+=============================
+ STORE INVENTORY
+ Item         Price   Unit
+=============================
+  rice                        Rs. 55 / kg
+  wheat                       Rs. 40 / kg
+  sugar                       Rs. 45 / kg
+  salt                        Rs. 20 / kg
+  oil                         Rs. 130 / litre
+  bread                       Rs. 40 / loaf
+  eggs                        Rs. 7 / piece
+=============================
+true.
+
+?- add_item(butter,60,kg).
+New item 'butter' added successfully!
+true.
+
+?- item_exists(biscuit).
+Sorry, 'biscuit' is not available.
+true.
+
+?- generate_bill([item(rice,2),item(sugar,3),item(eggs,12),item(oil,1)]).
+
+==============================
+       GROCERY BILL
+==============================
+  rice x 2 kg @ Rs.55 = Rs.110
+  sugar x 3 kg @ Rs.45 = Rs.135
+  eggs x 12 piece @ Rs.7 = Rs.84
+  oil x 1 litre @ Rs.130 = Rs.130
+
+------------------------------
+  TOTAL BILL:  Rs. 459
+==============================
+true .
+
+?-
+[23bcs082@mepcolinux prolog]$cat fam.txt
+parent(shantanu, bhishma).
+parent(shantanu, chitrangada).
+parent(shantanu, vichitravirya).
+parent(satyavati, chitrangada).
+parent(satyavati, vichitravirya).
+parent(vichitravirya, dhritarashtra).
+parent(vichitravirya, pandu).
+parent(vichitravirya, vidura).
+parent(dhritarashtra, duryodhana).
+parent(dhritarashtra, dushasana).
+parent(dhritarashtra, yuyutsu).
+parent(pandu, yudhishthira).
+parent(pandu, bhima).
+parent(pandu, arjuna).
+parent(pandu, nakula).
+parent(pandu, sahadeva).
+parent(kunti, yudhishthira).
+parent(kunti, bhima).
+parent(kunti, arjuna).
+parent(arjuna, abhimanyu).
+parent(subhadra, abhimanyu).
+parent(abhimanyu, parikshit).
+male(shantanu).
+male(bhishma).
+male(chitrangada).
+male(vichitravirya).
+male(dhritarashtra).
+male(pandu).
+male(vidura).
+male(duryodhana).
+male(dushasana).
+male(yuyutsu).
+male(yudhishthira).
+male(bhima).
+male(arjuna).
+male(nakula).
+male(sahadeva).
+male(abhimanyu).
+male(parikshit).
+
+female(satyavati).
+female(gandhari).
+female(kunti).
+female(draupadi).
+female(subhadra).
+female(uttara).
+spouse(shantanu, satyavati).
+spouse(dhritarashtra, gandhari).
+spouse(pandu, kunti).
+spouse(arjuna, subhadra).
+spouse(abhimanyu, uttara).
+spouse(X,Y) :- spouse(Y,X).
+father(X,Y) :- parent(X,Y), male(X).
+mother(X,Y) :- parent(X,Y), female(X).
+son(X,Y) :- parent(Y,X), male(X).
+daughter(X,Y) :- parent(Y,X), female(X).
+husband(X,Y) :- spouse(X,Y), male(X).
+wife(X,Y) :- spouse(X,Y), female(X).
+grandparent(X,Z) :- parent(X,Y), parent(Y,Z).
+grandfather(X,Z) :- grandparent(X,Z), male(X).
+grandmother(X,Z) :- grandparent(X,Z), female(X).
+sibling(X,Y) :- parent(P,X), parent(P,Y), X \= Y.
+brother(X,Y) :- sibling(X,Y), male(X).
+sister(X,Y) :- sibling(X,Y), female(X).
+uncle(X,Y) :-
+    setof(U, P^(parent(P,Y), brother(U,P)), List),
+    member(X,List).
+
+aunt(X,Y) :-
+    setof(A, P^(parent(P,Y), sister(A,P)), List),
+    member(X,List).
+
+cousin(X,Y) :-
+    setof(C, P1^P2^(parent(P1,X), parent(P2,Y), sibling(P1,P2)), List),
+    member(X,List).
+ancestor(X,Y) :- parent(X,Y), !.
+ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y).
+
+descendant(X,Y) :- ancestor(Y,X).
+
+
+?- father(X,arjuna).
+X = pandu .
+
+?- grandfather(X,parikshit).
+X = arjuna .
+
+?- mother(X,bhisma).
+false.
+
+?- brother(X,dhritarashtra).
+X = pandu .
+
+?- son(X,pandu).
+X = yudhishthira .
+
+?- wife(X,arjuna).
+X = subhadra .
+
+?- cousin(X,arjuna).
+X = duryodhana .
+
+?- sibling(X,pandu).
+X = dhritarashtra .
+
+?- descendant(X,shantanu).
+X = bhishma.
+
+?- father(pandu,X).
+X = yudhishthira .
+
+?- brother(arjuna,karna).
+false.
+
+?- mother(kunti,karna).
+false.
+
+?- ancestor(shantanu,parikshit).
+true .
+
+?-
+[23bcs082@mepcolinux prolog]$exit
+exit
+
+Script done on Tue Mar 31 10:42:07 2026
+[23bcs082@mepcolinux prolog]$

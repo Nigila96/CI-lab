@@ -1,0 +1,123 @@
+[23bcs082@mepcolinux ex8]$cat ex8.prn
+Script started on Sat Apr 25 14:26:33 2026
+[23bcs082@mepcolinux ex8]$cat output.txt
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+data = load_iris()
+X = data.data
+y = data.target
+
+print("\nDataset: Iris Dataset (UCI Repository)")
+print("Features:", data.feature_names)
+print("Classes:", data.target_names)
+
+n_trees = int(input("\nEnter number of Decision Trees: "))
+crit = input("Enter criterion (gini or entropy): ").lower()
+
+if crit not in ['gini', 'entropy']:
+    print("Invalid criterion! Defaulting to 'gini'.")
+    crit = 'gini'
+
+splits = [(0.7, 0.3), (0.6, 0.4), (0.75, 0.25)]
+results = []
+
+for train_size, test_size in splits:
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=42
+    )
+
+    split_name = f"{int(train_size*100)}-{int(test_size*100)}"
+
+    print(f"\n{'='*50}")
+    print(f" ANALYSIS FOR SPLIT: {split_name} ")
+    print(f"{'='*50}")
+    print(f"Train Samples  : {len(X_train)}")
+    print(f"Test Samples   : {len(X_test)}")
+
+    model = RandomForestClassifier(n_estimators=n_trees, criterion=crit, random_state=42)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    acc = accuracy_score(y_test, y_pred)
+    prec = precision_score(y_test, y_pred, average='weighted')
+    rec = recall_score(y_test, y_pred, average='weighted')
+    f1 = f1_score(y_test, y_pred, average='weighted')
+
+    results.append([split_name, acc, prec, rec, f1])
+
+    print(f"\nConfusion Matrix for {split_name}:")
+    cm = confusion_matrix(y_test, y_pred)
+    cm_df = pd.DataFrame(cm,
+                         index=[f"Actual {name}" for name in data.target_names],
+                         columns=[f"Predicted {name}" for name in data.target_names])
+    print(cm_df)
+
+df = pd.DataFrame(results, columns=["Split", "Accuracy", "Precision", "Recall", "F1 Score"])
+
+print(f"\n{'='*60}")
+print(f" FINAL RESULTS TABLE (Criterion: {crit.upper()}) ")
+print(f"{'='*60}")
+print(df.to_string(index=False))
+
+
+C:\Users\Administrator\Documents\Prolog>python nrf.py
+
+Dataset: Iris Dataset (UCI Repository)
+Features: ['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', 'petal width (cm)']
+Classes: ['setosa' 'versicolor' 'virginica']
+
+Enter number of Decision Trees: 50
+Enter criterion (gini or entropy): gini
+
+==================================================
+ ANALYSIS FOR SPLIT: 70-30
+==================================================
+Train Samples  : 105
+Test Samples   : 45
+
+Confusion Matrix for 70-30:
+                   Predicted setosa  Predicted versicolor  Predicted virginica
+Actual setosa                    19                     0                    0
+Actual versicolor                 0                    13                    0
+Actual virginica                  0                     0                   13
+
+==================================================
+ ANALYSIS FOR SPLIT: 60-40
+==================================================
+Train Samples  : 90
+Test Samples   : 60
+
+Confusion Matrix for 60-40:
+                   Predicted setosa  Predicted versicolor  Predicted virginica
+Actual setosa                    23                     0                    0
+Actual versicolor                 0                    19                    0
+Actual virginica                  0                     1                   17
+
+==================================================
+ ANALYSIS FOR SPLIT: 75-25
+==================================================
+Train Samples  : 112
+Test Samples   : 38
+
+Confusion Matrix for 75-25:
+                   Predicted setosa  Predicted versicolor  Predicted virginica
+Actual setosa                    15                     0                    0
+Actual versicolor                 0                    11                    0
+Actual virginica                  0                     0                   12
+
+============================================================
+ FINAL RESULTS TABLE (Criterion: GINI)
+============================================================
+Split  Accuracy  Precision   Recall  F1 Score
+70-30  1.000000   1.000000 1.000000  1.000000
+60-40  0.983333   0.984167 0.983333  0.983309
+75-25  1.000000   1.000000 1.000000  1.000000
+[23bcs082@mepcolinux ex8]$exit
+exit
+
+Script done on Sat Apr 25 14:26:39 2026
+[23bcs082@mepcolinux ex8]$
